@@ -12,10 +12,15 @@ A modern, silent typewriter that prints on plain paper using an HP45 inkjet cart
 - **Ultra-quiet motion** (NEMA-14 steppers + TMC drivers)
 - **Dedicated HP45 inkjet controller** for microsecond firing pulses
 - **Portable, battery powered**
+- **Serviceable and long-lived** design philosophy
 
 This project explores a practical "digital typewriter" that behaves like a real appliance — no operating system, no laptop required.
 
 ## Motivation
+
+**The Problem**: Traditional analog typewriters are too noisy and distracting to be used in a classroom. iPads and laptops are too distracting for both students and teachers/professors. Handwriting is sometimes not preferable.
+
+**The Solution**: A silent, distraction-free, battery-powered typewriter with keyboard input for students who want to type in class or use a typewriter without the noise distraction.
 
 Most modern "portable typing" is trapped behind screens. This device aims to be:
 
@@ -23,7 +28,45 @@ Most modern "portable typing" is trapped behind screens. This device aims to be:
 - Lightweight and battery powered
 - Compatible with standard plain paper
 - Able to save work to a USB stick
+- Serviceable and long-lived
 - Not just a novelty — a real writing tool
+
+### Why This Project?
+
+**Existing Solutions & Limitations:**
+
+- **Freewrite Smart, Alpha Typewriter**: Digital-only, expensive
+- **Older thermal paper machines** (Canon Typestar, Brother Ep43, etc.):
+  - Thermal paper is toxic and uncommon
+  - Old hardware is hard to find and unreliable
+  - No file export capability
+
+**This Project's Advantages:**
+
+- ✅ Real ink on paper (non-toxic, standard paper)
+- ✅ Modern, open-source design
+- ✅ File export capability
+- ✅ Multiple modes and programs
+- ✅ Interactive CLI interface
+- ✅ Serviceable and long-lived design
+- ✅ Potential Raspberry Pi version
+- ✅ Educational tool and art piece
+- ✅ All while maintaining: distraction-free, battery-operated operation
+
+## Where This Device Excels
+
+Beyond the classroom, this typewriter excels in various scenarios:
+
+- **Libraries and quiet spaces**: Silent operation allows typing without disturbing others
+- **Focus writing sessions**: No internet, notifications, or apps to distract from the task
+- **Journaling and personal writing**: Physical output provides a tangible record
+- **Field research and note-taking**: Battery-powered portability for on-site documentation
+- **Creative writing retreats**: Distraction-free environment for deep work
+- **Accessibility**: Alternative input method for those who prefer typing over handwriting
+- **Offline documentation**: Create physical records without digital infrastructure
+- **Artistic projects**: More than just typewritten documents — create visual art, graphics, patterns, and mixed-media works as physical artifacts
+- **Workshops and conferences**: Quiet note-taking during presentations
+- **Travel writing**: Portable, battery-powered typing without laptop bulk
 
 ## System Architecture
 
@@ -83,9 +126,10 @@ docs/
 
 ## Status
 
-- System architecture defined
-- PCB + firmware development in progress
-- Mechanical prototype work upcoming
+- ✅ Idea and system architecture defined
+- 🔄 PCB and firmware development in progress
+- 🔄 CAD in progress
+- 📋 Mechanical prototype upcoming
 
 Contributions, ideas, and experiments are welcome — pull requests encouraged!
 
@@ -105,6 +149,17 @@ Contributions, ideas, and experiments are welcome — pull requests encouraged!
 - Simple plotting / vector graphics
 - Wireless export
 - Encrypted notes mode
+- Templating pages
+- Raspberry Pi version
+
+## Research Questions
+
+User studies to understand preferences and effectiveness:
+
+- I like physical/digital documents over [opposite] ones
+- I can focus easily/get distracted on my computer when I'm typing a document
+- I prefer to type/handwrite my drafts instead of [opposite] them
+- I find digital/physical notes more effective than [opposite] notes
 
 ## License
 
