@@ -34,20 +34,23 @@ This document outlines the development stages for building the Silent Digital Ty
 | Task | Duration | Dependencies | Status |
 |------|----------|--------------|--------|
 | HP45 controller PCB design | 3 weeks | Phase 1 complete | 📋 Planned |
-| Main PCB design (ESP32-S3, TMC drivers, power) | 4 weeks | Phase 1 complete | 📋 Planned |
+| Main PCB design (ESP32-S3, TMC drivers, power, I²C headers for OLED + AS5600) | 4 weeks | Phase 1 complete | 📋 Planned |
 | PCB prototyping & ordering | 1 week | PCB designs complete | 📋 Planned |
 | PCB assembly & initial testing | 2 weeks | PCBs received | 📋 Planned |
 
 **Deliverables:**
 - HP45 controller PCB (Gerber files)
-- Main control PCB (Gerber files)
+- Main control PCB (Gerber files) with I²C headers:
+  - OLED header (4-pin: VCC, GND, SCL, SDA + optional RST)
+  - AS5600 encoder header (I²C, shared bus with OLED)
 - Assembled prototype boards
 - Basic power-on tests
+- I²C pull-up resistors (2.2–4.7 kΩ) installed
 
 ---
 
 ### Phase 3: Firmware Development — Core Functionality
-**Duration: 10-12 weeks**
+**Duration: 11-13 weeks** (extended for encoder and virtual detent implementation)
 
 | Task | Duration | Dependencies | Status |
 |------|----------|--------------|--------|
@@ -55,6 +58,11 @@ This document outlines the development stages for building the Silent Digital Ty
 | USB keyboard HID host implementation | 2 weeks | Dev environment | 📋 Planned |
 | USB flash drive filesystem (FatFs) | 2 weeks | Dev environment | 📋 Planned |
 | Text buffer & basic editor | 2 weeks | Keyboard input working | 📋 Planned |
+| Display driver abstraction (SSD1306/SH1106) | 1 week | Dev environment | 📋 Planned |
+| Basic UI framework (2-line layout) | 1 week | Display driver | 📋 Planned |
+| AS5600 encoder driver (I²C) | 1 week | Dev environment | 📋 Planned |
+| Virtual detent controller (state machine, control loop) | 2 weeks | Encoder driver | 📋 Planned |
+| Feed axis integration (encoder + stepper) | 1 week | Virtual detent controller | 📋 Planned |
 | Rasterizer (text to bitmap) | 3 weeks | Text buffer complete | 📋 Planned |
 | HP45 controller serial protocol | 2 weeks | Phase 2 (HP45 PCB) | 📋 Planned |
 | Motion control (stepper drivers) | 2 weeks | Phase 2 (main PCB) | 📋 Planned |
@@ -64,23 +72,32 @@ This document outlines the development stages for building the Silent Digital Ty
 - Working firmware with all core features
 - USB keyboard input functional
 - File save/load working
+- Display driver (SSD1306/SH1106) with I²C communication
+- Basic 2-line UI framework
+- AS5600 encoder driver with I²C communication
+- Virtual detent controller (FREE_ROLL / DETENT_LOCKED / PRINT_ALIGN states)
+- Feed axis encoder integration
 - Basic printing capability
 
 ---
 
 ### Phase 4: Mechanical Design & Assembly
-**Duration: 8-10 weeks**
+**Duration: 9-11 weeks** (extended for encoder mounting and lever mechanism)
 
 | Task | Duration | Dependencies | Status |
 |------|----------|--------------|--------|
 | Carriage module CAD design | 3 weeks | Phase 1 (component specs) | 📋 Planned |
-| Paper feed module CAD design | 2 weeks | Phase 1 (component specs) | 📋 Planned |
+| Paper feed module CAD design (AS5600 mount, magnet positioning) | 2 weeks | Phase 1 (component specs) | 📋 Planned |
+| Free-roll lever mechanism design | 1 week | Paper feed module | 📋 Planned |
 | Main chassis/enclosure design | 2 weeks | Carriage & feed modules | 📋 Planned |
 | 3D printing & machining (prototypes) | 2 weeks | CAD complete | 📋 Planned |
 | Mechanical assembly & fit testing | 1 week | Parts manufactured | 📋 Planned |
 
 **Deliverables:**
 - Complete CAD models (STEP files)
+- AS5600 encoder mount design
+- Magnet mounting design (1-2 mm gap, centered on shaft)
+- Free-roll lever mechanism
 - 3D printed/machined prototype parts
 - Assembled mechanical prototype
 - Fit and clearance verification
@@ -88,12 +105,14 @@ This document outlines the development stages for building the Silent Digital Ty
 ---
 
 ### Phase 5: Integration & System Testing
-**Duration: 6-8 weeks**
+**Duration: 8-10 weeks** (extended for encoder calibration and virtual detent tuning)
 
 | Task | Duration | Dependencies | Status |
 |------|----------|--------------|--------|
 | Full system integration (electronics + mechanics) | 2 weeks | Phase 3 & 4 complete | 📋 Planned |
 | Motion system calibration | 2 weeks | Integration complete | 📋 Planned |
+| Encoder calibration routine (roller circumference, counts_per_detent) | 1 week | Motion system calibrated | 📋 Planned |
+| Virtual detent tuning (gains, thresholds, currents) | 1 week | Encoder calibrated | 📋 Planned |
 | Print quality optimization | 2 weeks | Motion calibrated | 📋 Planned |
 | Battery system integration & testing | 1 week | Power system designed | 📋 Planned |
 | End-to-end user testing | 1 week | All systems working | 📋 Planned |
@@ -101,25 +120,36 @@ This document outlines the development stages for building the Silent Digital Ty
 **Deliverables:**
 - Fully integrated prototype
 - Calibrated motion system
+- Encoder calibrated (roller circumference measured, counts_per_detent computed)
+- Virtual detents tuned and functional
 - Acceptable print quality
 - Battery operation verified
 
 ---
 
 ### Phase 6: UI/UX & Polish
-**Duration: 4-6 weeks**
+**Duration: 7-9 weeks** (extended for 2-line OLED + encoder UI implementation)
 
 | Task | Duration | Dependencies | Status |
 |------|----------|--------------|--------|
-| OLED/TFT display integration | 2 weeks | Phase 3 (firmware) | 📋 Planned |
-| Button interface (PRINT/MODE/FEED) | 1 week | Display working | 📋 Planned |
-| User interface design & implementation | 2 weeks | Display & buttons | 📋 Planned |
+| OLED display hardware integration (SSD1306/SH1106 I²C) | 1 week | Phase 2 (main PCB) | 📋 Planned |
+| Display driver implementation (oled_ssd1306.c) | 1 week | Display hardware ready | 📋 Planned |
+| Text UI implementation (ui/text_ui.c, 2-line layout) | 2 weeks | Display driver complete | 📋 Planned |
+| Font system (6×10 default, 8×12 hi-vis) | 1 week | Text UI framework | 📋 Planned |
+| Button interface (PRINT/MODE/FEED/BKSP) | 1 week | Display working | 📋 Planned |
+| UI integration (keystroke echo ≤10ms, status display) | 1 week | Text UI & buttons | 📋 Planned |
+| LPI switching (6/8 LPI toggle, update counts_per_detent) | 1 week | Virtual detent controller | 📋 Planned |
+| Free-roll lever integration (state machine trigger) | 1 week | Virtual detent controller | 📋 Planned |
+| Screen invalidation & optimization (dirty regions) | 1 week | UI integration | 📋 Planned |
 | Autosave & document management | 1 week | Filesystem working | 📋 Planned |
 
 **Deliverables:**
-- Functional user interface
-- Display showing status/modes
-- Button controls working
+- Functional 2-line OLED display interface
+- Real-time keystroke echo (≤10 ms response)
+- Status indicators (battery %, USB, microSD, mode, LPI)
+- LPI switching (6/8 LPI) with live display update
+- Free-roll lever functional (FREE_ROLL / PRINT_ALIGN state switching)
+- Button controls working (PRINT/MODE/FEED/BKSP)
 - Document management features
 
 ---
@@ -154,19 +184,19 @@ Phase 2: Hardware Development — Core Electronics
         (starts after Phase 1)
 
 Phase 3: Firmware Development — Core Functionality
-                |████████████████████████████████████████████████████| 10-12 weeks
+                |████████████████████████████████████████████████████████| 11-13 weeks
                 (starts after Phase 2 PCBs ready)
 
 Phase 4: Mechanical Design & Assembly
-        |████████████████████████████████████████████████| 8-10 weeks
+        |████████████████████████████████████████████████████| 9-11 weeks
         (can start in parallel with Phase 2/3)
 
 Phase 5: Integration & System Testing
-                                        |████████████████████████████████| 6-8 weeks
+                                        |████████████████████████████████████| 8-10 weeks
                                         (starts after Phase 3 & 4)
 
 Phase 6: UI/UX & Polish
-                                        |████████████████████████████| 4-6 weeks
+                                        |████████████████████████████████████| 7-9 weeks
                                         (can overlap with Phase 5)
 
 Phase 7: Documentation & Refinement
@@ -180,9 +210,9 @@ Phase 7: Documentation & Refinement
 
 The longest path through the project (critical path) is:
 
-**Phase 1 → Phase 2 → Phase 3 → Phase 5 → Phase 7**
+**Phase 1 → Phase 2 → Phase 3 → Phase 5 → Phase 6 → Phase 7**
 
-**Total Estimated Duration: 32-42 weeks (8-10.5 months)**
+**Total Estimated Duration: 40-51 weeks (10-12.75 months)**
 
 ---
 
@@ -195,7 +225,7 @@ To accelerate development, these tasks can run in parallel:
 - **Phase 6 (UI/UX)** can begin while Phase 5 integration testing is ongoing
 - **Phase 7 (Documentation)** can start as soon as designs are finalized
 
-**Optimized Timeline: 24-30 weeks (6-7.5 months)** with parallel execution
+**Optimized Timeline: 32-40 weeks (8-10 months)** with parallel execution
 
 ---
 
@@ -249,7 +279,13 @@ To accelerate development, these tasks can run in parallel:
 - Linear rails (MGN7/MGN9)
 - Power management components
 - USB keyboards and flash drives (for testing)
-- OLED/TFT displays
+- OLED displays (1.3" 128×32, SSD1306/SH1106, I²C)
+- AS5600 encoder boards (I²C breakout)
+- 6 mm diametric magnets (N52 recommended)
+- I²C pull-up resistors (2.2–4.7 kΩ)
+- Buttons (PRINT/MODE/FEED/BKSP)
+- Free-roll lever switch
+- Silicone/urethane rollers (≈16 mm Ø for 2.000″ circumference)
 - 3D printing/machining services
 
 ### Software Tools
@@ -315,6 +351,6 @@ To accelerate development, these tasks can run in parallel:
 
 ---
 
-**Last Updated:** [Current Date]  
+**Last Updated:** 2025-01-XX (Display specs added)  
 **Project Status:** Early Development Phase
 
