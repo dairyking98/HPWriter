@@ -105,6 +105,7 @@ The ESP32-S3 provides instant-on firmware, a file system, and a small UI. The HP
 - Virtual detent paper feed (AS5600 encoder, 6/8 LPI switching)
 - Free-roll lever with soft spring detent alignment
 - Carriage homing (end stop sensor for repeatable print alignment)
+- Character spacing: 10 or 12 CPI (characters per inch) selectable
 
 ## Repository Structure (planned)
 
@@ -160,7 +161,7 @@ Contributions, ideas, and experiments are welcome — pull requests encouraged!
 
 - BLE keyboard support
 - Basic paragraph editor
-- Font/size options
+- Additional font options (10/12 CPI already implemented)
 - Simple plotting / vector graphics
 - Wireless export
 - Encrypted notes mode
@@ -367,12 +368,24 @@ d = angle_counts - detent_center  (signed error)
 - Home on startup (seeks end stop, establishes reference position)
 - Constant-velocity sweeps for HP45 raster printing
 
-### LPI Switching
+### Spacing Selection (CPI & LPI)
 
-6/8 LPI toggle in UI changes:
-- `counts_per_detent` calculation
-- Firmware's steps-per-line during motor-driven advance
-- Display shows "LPI: 6" or "LPI: 8" on second OLED line
+**CPI Switching (10/12)**:
+- 10/12 CPI toggle in UI changes:
+  - `steps_per_character` calculation
+  - Carriage motion timing during print sweeps
+  - Display shows "CPI: 10" or "CPI: 12" on second OLED line
+
+**LPI Switching (6/8)**:
+- 6/8 LPI toggle in UI changes:
+  - `counts_per_detent` calculation
+  - Firmware's steps-per-line during motor-driven advance
+  - Display shows "LPI: 6" or "LPI: 8" on second OLED line
+
+**Settings**:
+- CPI and LPI settings are independent (can be combined in any way)
+- Both settings stored in NVS and persist across reboots
+- Display format: "CPI: 10 | LPI: 6" (abbreviated as space allows)
 
 ### Calibration Routine (~1 minute)
 
@@ -590,4 +603,150 @@ The carriage end stop sensor establishes a repeatable home (reference) position 
 
 ---
 
-**Last Updated:** 2025-01-XX (Display specs + Encoder specs + End stop sensor added)
+## Print Specifications
+
+### Character Spacing (CPI)
+
+**10 CPI** (recommended)
+- **Character Width**: 0.100 inch (2.54 mm) per character
+- **Characters per Line**: ~80 characters on 8.5" wide paper (with margins)
+- **Typical Use**: Standard typewriter spacing, similar to pica type
+- **Advantages**: More readable, easier to scan, traditional typewriter feel
+
+**12 CPI** (alternative)
+- **Character Width**: 0.0833 inch (2.117 mm) per character
+- **Characters per Line**: ~96 characters on 8.5" wide paper (with margins)
+- **Typical Use**: Elite type spacing, more compact, higher information density
+- **Advantages**: More text per page, professional document appearance
+
+**Selection**:
+- Toggle between 10 CPI and 12 CPI via UI (MODE button or menu)
+- Display shows "CPI: 10" or "CPI: 12" on second OLED line
+- Selection stored in NVS and persists across reboots
+
+### Line Spacing (LPI)
+
+**6 LPI** (recommended)
+- **Line Height**: 0.1667 inch (4.233 mm) per line
+- **Lines per Page**: ~66 lines on 11" tall paper (with margins)
+- **Typical Use**: Double-spaced equivalent, comfortable reading
+- **Advantages**: More readable, easier to edit, professional appearance
+
+**8 LPI** (alternative)
+- **Line Height**: 0.1250 inch (3.175 mm) per line
+- **Lines per Page**: ~88 lines on 11" tall paper (with margins)
+- **Typical Use**: Single-spaced equivalent, compact documents
+- **Advantages**: More text per page, efficient use of paper
+
+**Selection**:
+- Toggle between 6 LPI and 8 LPI via UI (separate from CPI setting)
+- Display shows "LPI: 6" or "LPI: 8" on second OLED line
+- Selection stored in NVS and persists across reboots
+
+### Print Resolution
+
+**HP45 Cartridge Capabilities**:
+- **Nozzle Resolution**: ~300 DPI (dots per inch) native
+- **Nozzle Spacing**: ~85 μm (0.0033 inch) between nozzles
+- **Print Head Width**: ~0.5 inch (12.7 mm) with 50 nozzles
+- **Ink Drop Size**: Variable (can adjust for different print qualities)
+
+**Character Rendering**:
+- **Monospace Font**: Fixed-width characters (all characters same width)
+- **Rasterization**: Characters converted to bitmap patterns
+- **Character Height**: ~2.5–3.0 mm (depending on font design)
+- **Character Width**: Matches CPI setting (2.54 mm @ 10 CPI, 2.117 mm @ 12 CPI)
+
+### Carriage Motion (Character Spacing)
+
+**10 CPI Motion**:
+- **Steps per Character**: Depends on belt pitch and pulley
+- **Example Calculation**: 
+  - Belt pitch: 2 mm (GT2)
+  - Pulley: 20 teeth
+  - Steps/mm: 80 (200 steps/rev × 16 microsteps / 40 mm/rev)
+  - Steps per character @ 10 CPI: 80 steps/mm × 2.54 mm = ~203 steps
+- **Carriage Speed**: Constant velocity during print sweep
+- **Acceleration**: Smooth start/stop to prevent ink smearing
+
+**12 CPI Motion**:
+- **Steps per Character**: 
+  - Steps per character @ 12 CPI: 80 steps/mm × 2.117 mm = ~169 steps
+- **Faster Printing**: More characters per second at same carriage speed
+- **Same mechanical setup**: Only firmware timing changes
+
+### Paper Feed Motion (Line Spacing)
+
+**6 LPI Feed**:
+- **Steps per Line**: 
+  - Roller circumference: 50.8 mm (2.000")
+  - Steps/mm: 80 (example)
+  - Steps per line @ 6 LPI: 80 steps/mm × 4.233 mm = ~339 steps
+- **Feed Speed**: Smooth acceleration, controlled deceleration
+- **Alignment**: Virtual detent ensures perfect line spacing
+
+**8 LPI Feed**:
+- **Steps per Line**:
+  - Steps per line @ 8 LPI: 80 steps/mm × 3.175 mm = ~254 steps
+- **Faster Feed**: Shorter distance per line
+- **Same mechanical setup**: Only firmware step count changes
+
+### Font Design
+
+**Monospace Character Set**:
+- **ASCII Printable**: 95 characters (space through ~)
+- **Character Bitmaps**: Stored in ROM/Flash
+- **Character Height**: ~10–12 pixels (2.5–3.0 mm @ 300 DPI)
+- **Character Width**: Fixed per CPI setting
+  - 10 CPI: ~30 pixels wide (2.54 mm @ 300 DPI)
+  - 12 CPI: ~25 pixels wide (2.117 mm @ 300 DPI)
+
+**Font Rendering**:
+- **Rasterizer**: Converts text buffer to bitmap rows
+- **Print Sweep**: Carriage moves at constant velocity
+- **Nozzle Firing**: Triggered at precise positions based on character bitmaps
+- **Ink Drops**: Fired as carriage passes over paper
+
+### Configuration
+
+**Firmware Settings**:
+```c
+// Character spacing (CPI)
+#define CPI_10_STEPS_PER_CHAR  203  // Steps per character @ 10 CPI
+#define CPI_12_STEPS_PER_CHAR  169  // Steps per character @ 12 CPI
+
+// Line spacing (LPI)
+#define LPI_6_STEPS_PER_LINE   339  // Steps per line @ 6 LPI
+#define LPI_8_STEPS_PER_LINE   254  // Steps per line @ 8 LPI
+
+// Character dimensions (mm)
+#define CPI_10_CHAR_WIDTH_MM   2.54
+#define CPI_12_CHAR_WIDTH_MM   2.117
+#define LPI_6_LINE_HEIGHT_MM   4.233
+#define LPI_8_LINE_HEIGHT_MM   3.175
+```
+
+**User Settings**:
+- CPI selection: 10 or 12 (stored in NVS)
+- LPI selection: 6 or 8 (stored in NVS)
+- Settings independent (can have 10 CPI + 6 LPI, or 12 CPI + 8 LPI, etc.)
+
+### Print Quality
+
+**Resolution**: 300 DPI equivalent (HP45 native resolution)
+**Character Clarity**: Sharp, clear characters suitable for documents
+**Ink**: HP45 compatible ink cartridges
+**Paper**: Standard plain paper (20–24 lb bond recommended)
+
+### Benefits
+
+- **Flexible Spacing**: User-selectable CPI and LPI for different document needs
+- **Professional Output**: Clean, readable typewritten documents
+- **Traditional Feel**: Mimics classic typewriter spacing options
+- **Efficient**: More text per page with 12 CPI / 8 LPI settings
+- **Readable**: More spacing with 10 CPI / 6 LPI settings
+- **Software Configurable**: No mechanical changes needed to switch spacing
+
+---
+
+**Last Updated:** 2025-01-XX (Display specs + Encoder specs + End stop sensor + Print specs added)
